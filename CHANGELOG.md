@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.5.0-rc1 (2026-10-15) - release candidate
+
+### Features
+- Added m68k-atari-mintelf-gcc 15.2.
+
 ## v1.4.0 (2026-09-30) - release
 
 ### Features

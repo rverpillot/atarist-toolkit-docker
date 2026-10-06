@@ -7,12 +7,8 @@ FROM base_os AS add_prebuild_packages
 RUN \
   apt -y update && \
   DEBIAN_FRONTEND=noninteractive apt -y install git clang \
-  rsync curl build-essential python3 python-is-python3 upx-ucl && \
-  echo "deb http://ppa.launchpad.net/vriviere/ppa/ubuntu focal main" \
-  >  /etc/apt/sources.list.d/vriviere-ubuntu-ppa-focal.list && \
-  echo "deb https://ppa.launchpadcontent.net/vriviere/arm/ubuntu focal main" \
-  >> /etc/apt/sources.list.d/vriviere-ubuntu-ppa-focal.list && \
-  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B5690522
+  rsync curl build-essential python3 python-is-python3 upx-ucl \
+  zip unzip autoconf automake libtool pkg-config
 
 # ---- Direct installation vasm ----
 WORKDIR /tmp
@@ -42,42 +38,56 @@ RUN \
   cd .. && \
   rm -fR vlink*
 
+# ---- mintelf tools ----
+WORKDIR /tmp
+FROM vlink AS mintelf
+RUN \
+  curl https://tho-otto.m68k.eu/download/mint/binutils-2.45-mintelf-20250812-bin-linux64.tar.xz --output binutils.tar.xz && \
+  tar -xf binutils.tar.xz && \
+  cp -r usr/* /usr/local/ && \
+  rm -fR usr *.tar.xz
+RUN \
+  curl https://tho-otto.m68k.eu/download/mint/gcc-15.2.0-mintelf-20250810-bin-linux64.tar.xz --output gcc.tar.xz && \
+  tar -xf gcc.tar.xz && \
+  cp -r usr/* /usr/local/ && \
+  rm -fR usr *.tar.xz
+RUN \
+  curl https://tho-otto.m68k.eu/download/mint/gdb-17.0-mintelf-20250812-bin-linux64.tar.xz --output gdb.tar.xz && \
+  tar -xf gdb.tar.xz && \
+  cp -r usr/* /usr/local/ && \
+  rm -fR usr *.tar.xz
+
+# ---- Libraries ----
+WORKDIR /tmp
+FROM mintelf AS libraries
+RUN \
+  curl https://tho-otto.m68k.eu/download/mint/mintlib-0.60.1-mintelf-20240718-dev.tar.xz --output mintlib.tar.xz && \
+  tar -xf mintlib.tar.xz && \
+  cp -r usr/* /usr/local/ && \
+  rm -fR usr *.tar.xz
+RUN \
+  curl https://tho-otto.m68k.eu/download/mint/fdlibm-20240425-mintelf-dev.tar.xz --output fdlibm.tar.xz && \
+  tar -xf fdlibm.tar.xz && \
+  cp -r usr/* /usr/local/ && \
+  rm -fR usr *.tar.xz
+RUN \
+  curl https://tho-otto.m68k.eu/download/mint/gemlib-0.44.0-mintelf-20240425-dev.tar.xz --output gemlib.tar.xz && \
+  tar -xf gemlib.tar.xz && \
+  cp -r usr/* /usr/local/ && \
+  rm -fR usr *.tar.xz
+
 # ---- Download helper lib libcmini ----
-WORKDIR /freemint
-FROM vlink AS libcmini
+WORKDIR /tmp
+FROM libraries AS libcmini
 RUN \
-  mkdir -p /freemint/libcmini && \
-  curl -L https://github.com/freemint/libcmini/releases/download/v0.54/libcmini-0.54.tar.gz --output libcmini.tar.gz && \
-  gunzip libcmini.tar.gz && \
-  tar -xf libcmini.tar -C libcmini && \
-  rm -fR libcmini.tar
-
-# ---- Dependencies ----
-FROM libcmini AS dependencies
-# vriviere's pre-built Ubuntu packages for cross-mint-essentials for x86_64 and aarch64
-RUN \
-  export DEBIAN_FRONTEND=noninteractive && \
-  apt -y update && \
-  apt -y install software-properties-common && \
-  add-apt-repository ppa:vriviere/ppa && \
-  apt -y update && \
-  apt -y install cross-mint-essential cflib-m68k-atari-mint gemma-m68k-atari-mint gemlib-m68k-atari-mint ldg-m68k-atari-mint sdl-m68k-atari-mint ncurses-m68k-atari-mint zlib-m68k-atari-mint readline-m68k-atari-mint openssl-m68k-atari-mint pml-m68k-atari-mint
-
-# ---- Automake toolchain ----
-FROM dependencies AS automake_tools
-RUN \
-  export DEBIAN_FRONTEND=noninteractive && \
-  apt -y install autoconf automake libtool pkg-config
-
-# ---- Archive tools ----
-FROM automake_tools AS archive_tools
-RUN \
-  export DEBIAN_FRONTEND=noninteractive && \
-  apt -y install zip unzip
+  git clone https://github.com/freemint/libcmini.git && \
+  cd libcmini && \
+  make -e BUILD_CF=N -e COMPILE_ELF=Y -e PREFIX=/usr/local/m68k-atari-libcmini install && \
+  cd .. && rm -fR libcmini
 
 # ---- Build AGT tools ----
 # d_m_l's upstream repo ships prebuilt Linux binaries. Just use them
-FROM archive_tools AS agt
+FROM libcmini AS agt
 WORKDIR /
 RUN \
   git clone --depth 1 https://bitbucket.org/d_m_l/agtools.git && \

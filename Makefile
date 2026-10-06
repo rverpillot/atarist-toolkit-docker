@@ -25,18 +25,14 @@ VERSION := $(shell cat version.txt)
 DOCKER_TAG_NAME = $(VERSION)
 
 # Docker account (override with: make DOCKER_ACCOUNT=value or export DOCKER_ACCOUNT=value)
-DOCKER_ACCOUNT ?= logronoide
+DOCKER_ACCOUNT ?= rverpillot
 
 # Docker image name
 DOCKER_IMAGE_NAME = $(PROJECT)
 
-# Docker Hub credentials
-DOCKER_USERNAME = ${DOCKERHUB_USERNAME}
-DOCKER_PASSWORD = ${DOCKERHUB_PASSWORD}
-
 ## Run ci part
 .PHONY: all
-all: clean build publish
+all: clean build
 
 # Create the install files ready for release
 .PHONY: release
@@ -69,7 +65,6 @@ tag-images:
 ## Publish docker image
 .PHONY: publish
 publish: build tag-images
-	echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 	docker push "${DOCKER_ACCOUNT}/${DOCKER_IMAGE_NAME}:$(DOCKER_TAG_NAME)"
 	docker push "${DOCKER_ACCOUNT}/${DOCKER_IMAGE_NAME}:${VERSION}"
 	docker push "${DOCKER_ACCOUNT}/${DOCKER_IMAGE_NAME}:${VERSION}-${CURRENT_DATE}"

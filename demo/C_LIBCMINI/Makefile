@@ -1,7 +1,8 @@
-CC= m68k-atari-mint-gcc
-LIBCMINI=/freemint/libcmini/lib
-CFLAGS=-std=gnu99 -I/freemint/libcmini/include -nostdlib $(LIBCMINI)/crt0.o 
-LINKFLAGS=-s -L$(LIBCMINI) -lcmini -lgcc
+CC= m68k-atari-mintelf-gcc
+LIBCMINI=/usr/local/m68k-atari-libcmini
+CFLAGS=-std=gnu99 -I$(LIBCMINI)/include -nostdlib $(LIBCMINI)/lib/crt0.o
+LINKFLAGS=-s -L$(LIBCMINI)/lib -lcmini -lgcc
+
 all: clean main
 
 main: 

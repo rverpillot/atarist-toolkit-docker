@@ -8,7 +8,7 @@ else
 fi
 
 if [ -z "${DOCKER_ACCOUNT}" ]; then
-    DOCKER_ACCOUNT=logronoide
+    DOCKER_ACCOUNT=rverpillot
 fi
 STCMD_IMAGE_TAG=$1
 if [ $# -eq 0 ]; then

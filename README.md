@@ -17,9 +17,9 @@ Whether you're an experienced Atari ST developer or new to the platform, this im
 
 - [`vlink`](http://sun.hasenbraten.de/vlink/) is a portable linker, written in ANSI-C, that can read and write a wide range of object- and executable file formats. It can be used to link a specific target format from several different input file formats, or for converting, stripping and manipulating files. It takes object files produced by an assembler or compiler and combines them into a single executable file that can be run on the Atari ST.
 
-- [`libcmini`](https://github.com/freemint/libcmini) is a minimal version of the C standard library. It provides functions that can be called from C code to perform common tasks such as input/output and memory allocation. libcmini aims to be a small-footprint C library for the m68k-atari-mint (cross) toolchain, similar to the C library Pure-C came with. Many GEM programs do not need full MiNT support and only a handful of C library functions. By default, gcc compiled programs on the Atari ST platform link to mintlib. Mintlib aims to implement all POSIX functionality to make porting Unix/Linux programs easier (which is a very good thing to have). For small GEM-based programs, this comes with a drawback, however: program size gets huge due to the underlying UNIX compatibility layer.
+- [`libcmini`](https://github.com/usr/local/m68k-atari-libcmini) is a minimal version of the C standard library. It provides functions that can be called from C code to perform common tasks such as input/output and memory allocation. libcmini aims to be a small-footprint C library for the m68k-atari-mint (cross) toolchain, similar to the C library Pure-C came with. Many GEM programs do not need full MiNT support and only a handful of C library functions. By default, gcc compiled programs on the Atari ST platform link to mintlib. Mintlib aims to implement all POSIX functionality to make porting Unix/Linux programs easier (which is a very good thing to have). For small GEM-based programs, this comes with a drawback, however: program size gets huge due to the underlying UNIX compatibility layer.
 
-- [`m68k-atari-mint-gcc`]() is a cross compiler to generate C code usable in an Atari ST platform. It allows you to write C code on a modern machine and produce object files that can be run on the Atari ST. It is based on the GNU Compiler Collection (GCC) and has been specifically tailored for use with the Atari ST.
+- [`m68k-atari-mintelf-gcc`](https://tho-otto.m68k.eu) is a cross compiler to generate C code usable in an Atari ST platform. It allows you to write C code on a modern machine and produce object files that can be run on the Atari ST. It is based on the GNU Compiler Collection (GCC) and has been specifically tailored for use with the Atari ST.
 
 - [`[A]tari [G]ame [T]ools`](https://bitbucket.org/d_m_l/agtools/src/master/) are a set of tools and code for rapid prototyping of Atari STE games. This version embeds the necessary libraries to compile an AGT project.
 
@@ -327,8 +327,8 @@ stcmd make
 
 ```
 rm -f obj/* *~ core /*~ 
-m68k-atari-mint-gcc src/hello_bb.c -o obj/hello_bb.tos -Iinclude
-m68k-atari-mint-gcc src/hello_ge.c -o obj/hello_ge.prg -Iinclude -lgem
+m68k-atari-mintelf-gcc src/hello_bb.c -o obj/hello_bb.tos -Iinclude
+m68k-atari-mintelf-gcc src/hello_ge.c -o obj/hello_ge.prg -Iinclude -lgem
 ```
 resulting in
 ```
@@ -354,7 +354,7 @@ Makefile:56: warning: ignoring old recipe for target 'clean'
 rm -rf ./build
 rm -rf ./dist
 mkdir -p ./build
-m68k-atari-mint-gcc -c -std=gnu99 -I/freemint/libcmini/include -g ./src/main.c -o ./build/main.o
+m68k-atari-mintelf-gcc -c -std=gnu99 -I/usr/local/m68k-atari-libcmini/include -g ./src/main.c -o ./build/main.o
 vasm -Faout -quiet -x -m68000 -spaces -showopt ./src/asm_functions.s -o ./build/asm_functions.o
 
 message 2050 in line 21 of "./src/asm_functions.s": operand optimized: label->(d16,PC)
@@ -374,12 +374,12 @@ message 2050 in line 35 of "./src/asm_functions.s": operand optimized: label->(d
 
 message 2054 in line 36 of "./src/asm_functions.s": branch optimized into: b<cc>.b
 >	BSR		print_string            
-m68k-atari-mint-gcc -c -std=gnu99 -I/freemint/libcmini/include -g ./src/fx_screen.c -o ./build/fx_screen.o
-m68k-atari-mint-gcc /freemint/libcmini/lib/crt0.o \
+m68k-atari-mintelf-gcc -c -std=gnu99 -I/usr/local/m68k-atari-libcmini/include -g ./src/fx_screen.c -o ./build/fx_screen.o
+m68k-atari-mintelf-gcc /usr/local/m68k-atari-libcmini/lib/crt0.o \
       ./build/asm_functions.o \
 	  ./build/fx_screen.o \
 	  ./build/main.o \
-	  -o ./build/test.tos -nostdlib -s -L/freemint/libcmini/lib -lcmini -lgcc -Wl,--traditional-format;
+	  -o ./build/test.tos -nostdlib -s -L/usr/local/m68k-atari-libcmini/lib -lcmini -lgcc -Wl,--traditional-format;
 mkdir -p ./dist
 cp ./build/test.tos ./dist 	
 ```
@@ -406,7 +406,7 @@ stcmd make
 ```
 rm -rf out/*.tos
 mkdir -p out
-m68k-atari-mint-gcc -std=gnu99 -I/freemint/libcmini/include -nostdlib /freemint/libcmini/lib/crt0.o  src/main.c -o out/main.tos -s -L/freemint/libcmini/lib -lcmini -lgcc
+m68k-atari-mintelf-gcc -std=gnu99 -I/usr/local/m68k-atari-libcmini/include -nostdlib /usr/local/m68k-atari-libcmini/lib/crt0.o  src/main.c -o out/main.tos -s -L/usr/local/m68k-atari-libcmini/lib -lcmini -lgcc
 ```
 resulting in
 ```

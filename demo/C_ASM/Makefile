@@ -14,10 +14,10 @@ VLINK = vlink
 # To reference the library, it must set the absolute path inside the container image
 # The library is stored in /freemint/libcmini 
 # More info about the library: https://github.com/freemint/libcmini
-LIBCMINI = /freemint/libcmini
+LIBCMINI = /usr/local/m68k-atari-libcmini
 
 # GCC PARAMETERS
-CC = m68k-atari-mint-gcc
+CC = m68k-atari-mintelf-gcc
 CFLAGS=-c -std=gnu99 -I$(LIBCMINI)/include -g
 
 # LINKER PARAMETERS

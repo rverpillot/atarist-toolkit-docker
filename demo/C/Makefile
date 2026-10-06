@@ -1,5 +1,5 @@
 IDIR = include
-CC = m68k-atari-mint-gcc
+CC = m68k-atari-mintelf-gcc
 CFLAGS = -I$(IDIR)
 
 # Use traditional header and reserve 32KB stack to fix 3-bomb crash when run from HDD

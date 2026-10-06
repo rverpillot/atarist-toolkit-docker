@@ -8,7 +8,7 @@ cd /tmp
 case $COMMAND in
 
   gcc)
-    m68k-atari-mint-gcc $PARAMETERS
+    m68k-atari-mintelf-gcc $PARAMETERS
     ;;
 
   bash)
